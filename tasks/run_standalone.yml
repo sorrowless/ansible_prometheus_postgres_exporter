@@ -1,0 +1,87 @@
+---
+- name: Ensure config dir
+  become: yes
+  become_user: root
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - "{{ postgres_exporter_config_dir }}"
+    - "{{ postgres_exporter_config_dir }}/sources"
+
+- name: Get postgres exporter
+  become: yes
+  become_user: root
+  get_url:
+    url: "https://github.com/wrouesnel/postgres_exporter/releases/download/v{{ postgres_exporter_version }}/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}.tar.gz"
+    dest: "{{ postgres_exporter_config_dir }}/sources/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}.tar.gz"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Unzip postgres exporter
+  become: yes
+  become_user: root
+  unarchive:
+    remote_src: yes
+    src: "{{ postgres_exporter_config_dir }}/sources/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}.tar.gz"
+    dest: "{{ postgres_exporter_config_dir }}/sources/"
+    creates: "{{ postgres_exporter_config_dir }}/sources/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}/postgres_exporter"
+
+- name: Copy exporter to PATH
+  become: yes
+  become_user: root
+  copy:
+    remote_src: yes
+    src: "{{ postgres_exporter_config_dir }}/sources/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}/postgres_exporter"
+    dest: /usr/local/bin/postgres_exporter
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - Restart postgres exporter
+
+- name: Create postgres exporter user
+  user:
+    name: "{{ postgres_exporter_user }}"
+    comment: "postgres exporter user"
+    shell: /usr/sbin/nologin
+
+- name: Ensure postgres exporter env vars file
+  become: yes
+  become_user: root
+  template:
+    src: envvars.j2
+    dest: "{{ postgres_exporter_config_dir }}/envvars"
+    owner: root
+    group: "{{ postgres_exporter_user }}"
+    mode: 0640
+  notify:
+    - Restart postgres exporter
+
+- name: Ensure postgres exporter systemd unit
+  become: yes
+  become_user: root
+  template:
+    src: systemd.service.j2
+    dest: "/etc/systemd/system/postgres-exporter.service"
+    owner: root
+    group: root
+    mode: 0644
+  register: systemd_unitfile
+  notify:
+    - Restart postgres exporter
+
+- name: Enable systemd service
+  become: yes
+  become_user: root
+  systemd:
+    name: "postgres-exporter.service"
+    enabled: yes
+    daemon_reload: yes
+    state: started
+  when:
+    - systemd_unitfile.changed

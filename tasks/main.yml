@@ -1,0 +1,8 @@
+---
+- name: Include docker-related tasks
+  include_tasks: run_in_docker.yml
+  when: postgres_exporter_run_in_docker
+
+- name: Include standalone tasks
+  include_tasks: run_standalone.yml
+  when: not postgres_exporter_run_in_docker

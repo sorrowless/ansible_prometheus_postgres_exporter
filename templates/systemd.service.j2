@@ -1,0 +1,16 @@
+[Unit]
+Description=Postgres exporter service
+After=network.target
+
+[Service]
+User={{ postgres_exporter_user }}
+Group={{ postgres_exporter_user }}
+EnvironmentFile={{ postgres_exporter_config_dir }}/envvars
+ExecStart=/usr/local/bin/postgres_exporter
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+Restart=on-failure
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+---
+postgres_exporter_config_dir: /var/lib/postgres_exporter
+postgres_exporter_run_in_docker: false
+postgres_exporter_docker_network_name: prom_network
+postgres_exporter_container_name: postgres_exporter
+postgres_exporter_docker_image: "wrouesnel/postgres_exporter:v0.8.0"
+postgres_exporter_docker_labels:
+  - prometheus
+  - exporter
+  - postgres_exporter
+postgres_exporter_host_port: 9187
+postgres_exporter_version: '0.9.0'
+postgres_exporter_arch: linux-amd64
+postgres_exporter_metrics_path: metrics
+postgres_exporter_user: postgres_exporter
+postgres_exporter_data_source_name: "postgresql://postgres:postgres@127.0.0.1:5432?sslmode=disable"
