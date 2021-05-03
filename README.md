@@ -1,9 +1,9 @@
 # sbog/prometheus_postgres_exporter
 
 [![Build Status](https://travis-ci.com/sorrowless/ansible_prometheus_postgres_exporter.svg?branch=master)](https://travis-ci.com/sorrowless/ansible_prometheus_postgres_exporter)
-[![Ansible Role](https://img.shields.io/ansible/role/54627)](https://galaxy.ansible.com/sorrowless/prometheus_postgres_exporter)
-[![Ansible Quality Score](https://img.shields.io/ansible/quality/54627)](https://galaxy.ansible.com/sorrowless/prometheus_postgres_exporter)
-[![Ansible Role](https://img.shields.io/ansible/role/d/54627)](https://galaxy.ansible.com/sorrowless/prometheus_postgres_exporter)
+[![Ansible Role](https://img.shields.io/ansible/role/54629)](https://galaxy.ansible.com/sorrowless/prometheus_postgres_exporter)
+[![Ansible Quality Score](https://img.shields.io/ansible/quality/54629)](https://galaxy.ansible.com/sorrowless/prometheus_postgres_exporter)
+[![Ansible Role](https://img.shields.io/ansible/role/d/54629)](https://galaxy.ansible.com/sorrowless/prometheus_postgres_exporter)
 [![GitHub](https://img.shields.io/github/license/sorrowless/ansible_prometheus_postgres_exporter)](https://github.com/sorrowless/ansible_prometheus_postgres_exporter/blob/master/LICENSE)
 
 An Ansible role which installs and configures [Prometheus postgres_exporter](https://github.com/prometheus-community/postgres_exporter) on Linux
