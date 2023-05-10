@@ -21,3 +21,28 @@
         default:
           external:
             name: "{{ postgres_exporter_docker_network_name }}"
+  when: postgres_exporter_containers is undefined
+
+- name: Start docker postgres exporter some containers
+  community.docker.docker_compose:
+    state: present
+    project_name: prometheus_postgres_exporter
+    definition:
+      version: '2'
+      services:
+        postgres_exporter:
+          image: "{{ postgres_exporter_docker_image }}"
+          container_name: "{{ item.postgres_exporter_container_name }}"
+          ports:
+            - "127.0.0.1:{{ item.postgres_exporter_host_port }}:{{item.postgres_exporter_host_port }}"
+          environment:
+            - PG_EXPORTER_AUTO_DISCOVER_DATABASES=true
+            - DATA_SOURCE_NAME={{ item.postgres_exporter_data_source_name }}
+          hostname: "{{ ansible_host }}"
+          restart: always
+          labels: "{{ postgres_exporter_docker_labels }}"
+      networks:
+        default:
+          external:
+            name: "{{ item.postgres_exporter_docker_network_name }}"
+  with_items: "{{ item.postgres_exporter_containers }}"
