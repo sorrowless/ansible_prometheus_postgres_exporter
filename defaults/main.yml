@@ -21,9 +21,9 @@ postgres_exporter_data_source_name: "postgresql://postgres:postgres@127.0.0.1:54
 #You can use list "postgres_exporter_containers" for some some containers of docker exporter in host.
 #Remeber! If you use variable "postgres_exporter_run_hybrid=true", you should define variables for postgres exporter in docker only in list!
 # postgres_exporter_containers:
-#   - postgres_exporter_container_name
-#     postgres_exporter_host_port
-#     postgres_exporter_data_source_name
-#     postgres_exporter_docker_network_name
-#     postgres_exporter_containers
+#   - postgres_exporter_container_name: postgres_exporter_01
+#     postgres_exporter_host_port: 9187
+#     postgres_exporter_docker_network_name: prom_network
+#     postgres_exporter_data_source_name: "postgresql://postgres:postgres@127.0.0.1:5432?sslmode=disable"
+
 
