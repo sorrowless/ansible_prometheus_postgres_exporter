@@ -16,6 +16,14 @@ Ansible 2.8+
 
 You can see all vars in `defaults/main.yml` vars file.
 
+If you use docker swarm, you should specify variables for the host on which
+the container is supposed to be run, and also indicate the name of the swarm
+manager through which the stack will be deployed in variable
+`postgres_exporter_swarm_manager`
+```yaml
+postgres_exporter_swarm_manager: swarm-manager01
+```
+
 ## Dependencies
 
 None
