@@ -2,6 +2,9 @@
 - name: Include docker-related tasks
   include_tasks: run_in_docker.yml
   when: (postgres_exporter_run_in_docker)or(postgres_exporter_run_hybrid)
+  loop: "{{ postgres_exporter_docker_services }}"
+  loop_control:
+    loop_var: postgres_exporter_service
 
 - name: Include standalone tasks
   include_tasks: run_standalone.yml

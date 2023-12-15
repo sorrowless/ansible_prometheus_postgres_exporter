@@ -5,6 +5,13 @@ postgres_exporter_run_in_docker: false
 postgres_exporter_run_hybrid: false
 postgres_exporter_docker_network_name: prom_network
 postgres_exporter_container_name: postgres_exporter
+postgres_exporter_docker_services:
+  - name: "{{ postgres_exporter_container_name }}"
+    environment:
+      - PG_EXPORTER_AUTO_DISCOVER_DATABASES=true
+      - DATA_SOURCE_NAME="postgresql://postgres:password@postgres:5432?sslmode=disable"
+    port: "{{ postgres_exporter_host_port }}"
+
 postgres_exporter_docker_image: "wrouesnel/postgres_exporter:v0.8.0"
 postgres_exporter_docker_labels:
   - prometheus
@@ -27,3 +34,30 @@ postgres_exporter_data_source_name: "postgresql://postgres:postgres@127.0.0.1:54
 #     postgres_exporter_data_source_name: "postgresql://postgres:postgres@127.0.0.1:5432?sslmode=disable"
 
 
+
+postgres_exporter_docker_labels: []
+
+postgres_exporter_stack_name: postgres_exporter
+postgres_exporter_swarm_deploy:
+  mode: replicated
+  replicas: 1
+
+# example postgres_exporter_swarm_deploy:
+#   mode: replicated
+#   replicas: 2
+#   restart_policy:
+#     condition: any
+#     delay: 10s
+#   resources:
+#     limits:
+#       memory: 512M
+#     reservations:
+#       memory: 256M
+#   update_config:
+#     parallelism: 1
+#     delay: 30s
+#     failure_action: rollback
+#   placement:
+#     max_replicas_per_node: 1
+#     constraints:
+#       - node.labels.postgres_exporter == true
