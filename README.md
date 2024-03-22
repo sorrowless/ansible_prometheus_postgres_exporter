@@ -24,6 +24,9 @@ manager through which the stack will be deployed in variable
 postgres_exporter_swarm_manager: swarm-manager01
 ```
 
+For using multitarget configuration, change variable `postgres_exporter_auth_modules`.
+For more details [see repository](https://github.com/prometheus-community/postgres_exporter?tab=readme-ov-file#auth_modules).
+
 ## Dependencies
 
 None

@@ -2,9 +2,10 @@
 - name: Start docker postgres exporter container
   community.docker.docker_compose:
     state: present
+    restarted: "{{ postgres_exporter_config_file.changed }}"
     project_name: prometheus_postgres_exporter
     definition:
-      version: '2'
+      version: '2.4'
       services: |
         {{
           {
@@ -18,6 +19,8 @@
               "hostname": postgres_exporter_service.name,
               "restart": "always",
               "labels": postgres_exporter_docker_labels,
+              "command": postgres_exporter_service.command | default(""),
+              "volumes": postgres_exporter_service.volumes | default([]),
             }
           }
         }}

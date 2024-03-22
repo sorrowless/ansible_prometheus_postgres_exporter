@@ -3,3 +3,4 @@
   service:
     name: postgres-exporter.service
     state: restarted
+  when: (not postgres_exporter_run_in_docker)or(postgres_exporter_run_hybrid)
