@@ -1,22 +1,19 @@
 ---
-- name: Ensure config dir
+- name: Ensure sources dir
   become: yes
   become_user: root
   file:
-    path: "{{ item }}"
+    path: "{{ postgres_exporter_config_dir }}/sources"
     state: directory
     mode: 0755
     owner: root
     group: root
-  with_items:
-    - "{{ postgres_exporter_config_dir }}"
-    - "{{ postgres_exporter_config_dir }}/sources"
 
 - name: Get postgres exporter
   become: yes
   become_user: root
   get_url:
-    url: "https://github.com/wrouesnel/postgres_exporter/releases/download/v{{ postgres_exporter_version }}/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}.tar.gz"
+    url: "https://github.com/prometheus-community/postgres_exporter/releases/download/v{{ postgres_exporter_version }}/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}.tar.gz"
     dest: "{{ postgres_exporter_config_dir }}/sources/postgres_exporter-{{ postgres_exporter_version }}.{{ postgres_exporter_arch }}.tar.gz"
     mode: 0644
     owner: root
