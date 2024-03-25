@@ -1,2 +1,1 @@
-auth_modules:
-  {{ postgres_exporter_auth_modules | to_yaml(indent=4) }}
+{{ { "auth_modules": postgres_exporter_auth_modules } | to_yaml }}
