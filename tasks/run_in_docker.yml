@@ -1,11 +1,9 @@
 ---
 - name: Start docker postgres exporter container
-  community.docker.docker_compose:
-    state: present
-    restarted: "{{ postgres_exporter_config_file.changed }}"
+  community.docker.docker_compose_v2:
+    state: "{{ 'restarted' if postgres_exporter_config_file.changed else 'present' }}"
     project_name: prometheus_postgres_exporter
     definition:
-      version: '2.4'
       services: |
         {{
           {
@@ -26,18 +24,17 @@
         }}
       networks:
         default:
-          external:
-            name: "{{ postgres_exporter_docker_network_name }}"
+          external: true
+          name: "{{ postgres_exporter_docker_network_name }}"
   when:
     - postgres_exporter_containers is undefined
     - postgres_exporter_swarm_manager is undefined
 
 - name: Start docker postgres exporter few containers
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     state: present
     project_name: "{{ item.postgres_exporter_container_name }}"
     definition:
-      version: '2'
       services:
         postgres_exporter:
           image: "{{ postgres_exporter_docker_image }}"
@@ -52,8 +49,8 @@
           labels: "{{ postgres_exporter_docker_labels }}"
       networks:
         default:
-          external:
-            name: "{{ item.postgres_exporter_docker_network_name }}"
+          external: true
+          name: "{{ item.postgres_exporter_docker_network_name }}"
   with_items: "{{ postgres_exporter_containers }}"
   when:
     - postgres_exporter_containers is defined
