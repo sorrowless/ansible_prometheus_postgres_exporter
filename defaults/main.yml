@@ -47,11 +47,9 @@ postgres_exporter_auth_modules: {}
 #       # options become key=value parameters of the DSN
 #       sslmode: disable
 
-postgres_exporter_additional_args: --config.file {{ postgres_exporter_config_dir }}/postgres_exporter.yml
+postgres_exporter_additional_args: --config.file {{ postgres_exporter_config_dir }}/postgres_exporter.yml --extend.query-path {{ postgres_exporter_config_dir }}/queries.yml
 postgres_exporter_volumes:
   - "{{ postgres_exporter_config_dir }}:{{ postgres_exporter_config_dir }}"
-
-postgres_exporter_docker_labels: []
 
 postgres_exporter_stack_name: postgres_exporter
 postgres_exporter_swarm_deploy:
@@ -77,3 +75,52 @@ postgres_exporter_swarm_deploy:
 #     max_replicas_per_node: 1
 #     constraints:
 #       - node.labels.postgres_exporter == true
+
+postgres_exporter_additionlal_queries:
+  pg_stat_statements:
+    query: |
+      SELECT
+        pg_get_userbyid(userid) as user,
+        pg_database.datname,
+        pg_stat_statements.queryid,
+        pg_stat_statements.calls as calls,
+        (pg_stat_statements.total_plan_time + pg_stat_statements.total_exec_time) / 1000.0 as total_time_seconds,
+        pg_stat_statements.rows as rows_total,
+        pg_stat_statements.blk_read_time / 1000.0 as block_read_seconds_total,
+        pg_stat_statements.blk_write_time / 1000.0 as block_write_seconds_total
+      FROM pg_stat_statements
+      JOIN pg_database
+        ON pg_database.oid = pg_stat_statements.dbid
+      WHERE
+        (pg_stat_statements.total_plan_time + pg_stat_statements.total_exec_time) > (
+          SELECT percentile_cont(0.1)
+          WITHIN GROUP (ORDER BY (total_plan_time + total_exec_time))
+          FROM pg_stat_statements
+        )
+      ORDER BY total_time_seconds DESC
+      LIMIT 100;
+    metrics:
+      - user:
+          usage: "LABEL"
+          description: "The user who executed the statement"
+      - datname:
+          usage: "LABEL"
+          description: "The database in which the statement was executed"
+      - queryid:
+          usage: "LABEL"
+          description: "Internal hash code, computed from the statement's parse tree"
+      - calls:
+          usage: "COUNTER"
+          description: "Number of times executed"
+      - total_time_seconds:
+          usage: "COUNTER"
+          description: "Total time spent in the statement, in seconds"
+      - rows_total:
+          usage: "COUNTER"
+          description: "Total number of rows retrieved or affected by the statement"
+      - block_read_seconds_total:
+          usage: "COUNTER"
+          description: "Total time the statement spent reading blocks, in seconds"
+      - block_write_seconds_total:
+          usage: "COUNTER"
+          description: "Total time the statement spent writing blocks, in seconds"

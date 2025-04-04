@@ -9,7 +9,7 @@
     owner: root
     group: root
 
-- name: Ensure postgres exporter postbres_exporter conf file
+- name: Ensure postgres exporter postgres_exporter conf file
   become: yes
   become_user: root
   template:
@@ -17,10 +17,22 @@
     dest: "{{ postgres_exporter_config_dir }}/postgres_exporter.yml"
     owner: root
     mode: 0644
-  register: postgres_exporter_config_file
+  notify:
+    - Restart postgres exporter
+    - Restart postgres exporter container
+
+- name: Ensure postgres exporter postgres_exporter queries file
+  become: yes
+  become_user: root
+  template:
+    src: queries.yml.j2
+    dest: "{{ postgres_exporter_config_dir }}/queries.yml"
+    owner: root
+    mode: 0644
   tags: test
   notify:
     - Restart postgres exporter
+    - Restart postgres exporter container
 
 - name: Include docker-related tasks
   include_tasks: run_in_docker.yml

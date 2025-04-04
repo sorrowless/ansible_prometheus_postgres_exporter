@@ -4,3 +4,37 @@
     name: postgres-exporter.service
     state: restarted
   when: (not postgres_exporter_run_in_docker)or(postgres_exporter_run_hybrid)
+
+- name: Restart postgres exporter container
+  community.docker.docker_compose_v2:
+    state: 'restarted'
+    project_name: prometheus_postgres_exporter
+    definition:
+      services: |
+        {{
+          {
+            postgres_exporter_service.name: {
+              "image": postgres_exporter_docker_image,
+              "container_name": postgres_exporter_service.name,
+              "ports": [
+                "127.0.0.1:" ~ postgres_exporter_service.port | default(9187) ~ ":9187",
+              ],
+              "environment": postgres_exporter_service.environment,
+              "hostname": postgres_exporter_service.name,
+              "restart": "always",
+              "labels": postgres_exporter_docker_labels,
+              "command": postgres_exporter_service.command | default(""),
+              "volumes": postgres_exporter_service.volumes | default([]),
+            }
+          }
+        }}
+      networks:
+        default:
+          external: true
+          name: "{{ postgres_exporter_service.network | default(postgres_exporter_docker_network_name) }}"
+  loop: "{{ postgres_exporter_docker_services }}"
+  loop_control:
+    loop_var: postgres_exporter_service
+  when:
+    - (postgres_exporter_run_in_docker)or(postgres_exporter_run_hybrid)
+    - postgres_exporter_swarm_manager is undefined
